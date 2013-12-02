@@ -92,7 +92,8 @@ public class EducationDecisionScoreMongo {
 
                       counter++;
             }
-		          
+                
+             //System.out.println(counter);   
            // Mean of the high school enrollment
               mean_highschool = sum_highschool/counter;
 
@@ -159,14 +160,17 @@ public void writeDataBase(float mean_highschool, float mean_bachelor, float mean
               DBCollection collection_education_rating = db.getCollection(coll_edu_rating);
               for(int i=0;i<50;i++){
 
-                  BasicDBObject updateQuery = new BasicDBObject();
-                  updateQuery.append("$set", new BasicDBObject().append("decision_score",arr_desc_score.get(i)));
-                  updateQuery.append("$set", new BasicDBObject().append("prev_year_fund_rating",arr_past_rating.get(i)));
+                  BasicDBObject updateQuery1 = new BasicDBObject();
+                  BasicDBObject updateQuery2 = new BasicDBObject();
+                  
+                  updateQuery1.append("$set", new BasicDBObject().append("prev_year_fund_rating",arr_past_rating.get(i)));
+                  updateQuery2.append("$set", new BasicDBObject().append("decision_score",arr_desc_score.get(i)));
+                  
 
                   BasicDBObject searchQuery = new BasicDBObject().append("state_id", i+1);
 
-                  collection_education_rating.update(searchQuery, updateQuery);
-
+                  collection_education_rating.update(searchQuery, updateQuery1);
+                  collection_education_rating.update(searchQuery, updateQuery2);
                           }
             }
 		catch (Exception ex){

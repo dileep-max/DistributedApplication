@@ -144,10 +144,11 @@ public class loginallocator extends HttpServlet {
                         out.println("</thead>");
 
                         out.println("<tbody>");
-                    
+                    System.out.println("Joomla");
                     for(RequestHistory iVar : pendingList)
                     {
                         //stateObj = stateFacade.find((iVar.getStateId()));
+                        System.out.println(iVar.getRequestId());
                         deptObj = departmentFacade.find(iVar.getDepartmentId());
                         
                         out.println("<tr>");

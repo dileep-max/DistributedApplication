@@ -21,7 +21,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-//import middlewaretestproj.*;
+import fundallocationengine.*;
 /**
  *
  * @author Dileep Kumar
@@ -64,13 +64,32 @@ public class process extends HttpServlet {
             RequestDispatcher disp = request.getRequestDispatcher("/loginallocator");  
             disp.forward(request, response);  
             */
-            //MiddlewareTestProj m = new MiddlewareTestProj();
             
             if(request.getParameter("checked")!=null && request.getParameter("process")!=null)
             {
                 //request_id,state_id,requested_amount,department_id
+                RequestHistory updReqObj = new RequestHistory();
+                RequestHistory remainingValObj = requestHistoryFacade2.find(Integer.parseInt(request.getParameter("checked")));
+                Status statusObj = new Status();
+
                 
-                //m.hello();
+                EducationAllocationEngine eAE = new EducationAllocationEngine(Integer.parseInt(request.getParameter("checked")),
+                        remainingValObj.getStateId().getStateCode(),remainingValObj.getRequestedFund());
+                double allocated_amt = eAE.mainProcedure();
+                System.out.println("Processed successfully");
+                
+                RequestHistory remainingValObj1 = requestHistoryFacade2.find(Integer.parseInt(request.getParameter("checked")));
+                statusObj.setStatusId(2);
+                statusObj.setStatusValue("processed");
+                
+                updReqObj.setRequestId(Integer.parseInt(request.getParameter("checked")));
+                updReqObj.setAllocatedFund(allocated_amt);//remainingValObj1.getAllocatedFund());
+                updReqObj.setDepartmentId(remainingValObj1.getDepartmentId());
+                updReqObj.setRequestedFund(remainingValObj1.getRequestedFund());
+                updReqObj.setStateId(remainingValObj1.getStateId());
+                updReqObj.setStatusId(statusObj);
+                requestHistoryFacade2.edit(updReqObj); //Updating the request status
+                
             }
             //approving the request
             else if(request.getParameter("checkedP")!=null && request.getParameter("approve")!=null)

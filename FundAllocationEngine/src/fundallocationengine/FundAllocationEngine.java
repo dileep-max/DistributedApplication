@@ -36,60 +36,71 @@ public class FundAllocationEngine {
     protected PreparedStatement preparedStatement = null;
     protected ResultSet resultSet = null; 
     
-
+    // to get the request id of each request
     public int getRequestId() {
         return requestId;
     }
-
+    
+    // to set the request id of each request
     public void setRequestId(int requestId) {
         this.requestId = requestId;   
     }
     
+    // to get the state id of each request
     public int getStateId() {
         return stateId;
     }
-
+    
+    // to set the state id of each request
     public void setStateId(int stateId) {
         this.stateId = stateId;
     }
-
+    
+    // to get the department id of each request
     public int getDepartmentId() {
         return departmentId;
     }
-
+    
+    // to set the department id of each request
     public void setDepartmentId(int departmentId) {
         this.departmentId = departmentId;
     }
     
-    
+    // constructor to set the request id, state id and requested amount for each request
     public FundAllocationEngine(int requestId,int stateId,double requestedAmount) {
         this.requestId = requestId;
         this.stateId = stateId;
         this.requestedAmount = requestedAmount;
         this.allocatedAmount = requestedAmount;
         try {
+            // gets the my sql connection
         getRDBMSConnection();
        } catch(SQLException e) {
            System.out.println(e.getMessage());
        }
     }
     
+    // to get the allocated amount of each request
     public double getAllocatedAmount() {
         return allocatedAmount;
     }
 
+    // to set the allocated amount of each request
     public void setAllocatedAmount(double allocatedAmount) {
         this.allocatedAmount = allocatedAmount;
     }
-
+    
+    // to get the requested amount of each request
     public double getRequestedAmount() {
         return requestedAmount;
     }
-
+    
+    // to set the requested amount of each request
     public void setRequestedAmount(double requestedAmount) {
         this.requestedAmount = requestedAmount;
     }
     
+    //  connect to the my sql db of fund
     public final void getRDBMSConnection() throws SQLException{
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -98,15 +109,20 @@ public class FundAllocationEngine {
             System.out.println("DBConnection: " + e.getMessage());
         }
     }
-
-    public void mainProcedure() {
+    
+    // executes all the rules of each department
+    public double mainProcedure() {
+        return 0.0;
         
     }
     
+    // Update the request fund table with allocated amount
     public final void updateSQL() {
         try {
-            preparedStatement = connect.prepareStatement("UPDATE FUND.REQUEST_HISTORY SET ALLOCATED_FUND = "+ getAllocatedAmount() + ", STATUS_ID = 2 WHERE REQUEST_ID = " + getRequestId());
+            preparedStatement = connect.prepareStatement("UPDATE FUND.REQUEST_HISTORY SET ALLOCATED_FUND = "+ getAllocatedAmount() + " WHERE REQUEST_ID = " + getRequestId());
+            // , STATUS_ID = 2 set the status from servlet side
             preparedStatement.executeUpdate();
+            System.out.println("Updated rows");
         //    preparedStatement = connect.prepareStatement("UPDATE FUND.FEDFUND SET FUND_AMOUNT = FUND_AMOUNT-"+ getAllocatedAmount() + " WHERE FUND_DESIGNATION = 'Federal Fund'");
         //    preparedStatement.executeUpdate();
         }catch(Exception e) {

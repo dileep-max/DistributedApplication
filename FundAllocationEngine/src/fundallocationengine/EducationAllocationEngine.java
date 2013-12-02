@@ -29,9 +29,12 @@ public class EducationAllocationEngine extends FundAllocationEngine {
 
     protected DBCollection educationCollection;
     protected DBCollection educationRatingCollection;
-
+    
+    // initializing the base class constructor with request id, state id and requested amount
+   
     public EducationAllocationEngine(int requestId, int stateId, double requestedAmount) {
         super(requestId, stateId, requestedAmount);
+        // Connecting to the mongo db..
         try {
             mongoClient = new MongoClient("localhost", 27017);
             dB = mongoClient.getDB("mydb");
@@ -42,7 +45,7 @@ public class EducationAllocationEngine extends FundAllocationEngine {
             System.out.println(e.getMessage());
         }
     }
-
+    // Check the decision score of the education department
     public void ifGreaterThanNormalDecisionScore() {
 
         DBObject dbObj = new BasicDBObject();
@@ -54,7 +57,21 @@ public class EducationAllocationEngine extends FundAllocationEngine {
             setAllocatedAmount(0.8 * (allocatedAmount));
         }
     }
+    
+    // Check the previous year fund rating score of the education department
+    public void ifGreaterThanNormalPrevYearFundRating() {
 
+        DBObject dbObj = new BasicDBObject();
+        dbObj.put("state_id", stateId);
+        DBObject dbObject = QueryBuilder.start("state_id").in(dbObj).get();
+
+        DBCursor dbCursor = educationRatingCollection.find(dbObject);
+        if (Float.parseFloat(dbCursor.next().get("prev_year_fund_rating").toString()) > 7) {
+            setAllocatedAmount(0.7 * (allocatedAmount));
+        }
+    }
+        
+    // Check if the state id falls under top ten high schools
     public void ifTopTenHighSchools() {
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         List<Float> arrayList = new ArrayList<>();
@@ -86,7 +103,8 @@ public class EducationAllocationEngine extends FundAllocationEngine {
         }
 
     }
-
+    
+    // Check if the state falls under top ten bachelors rating in the US
     public void ifTopTenBachelors() {
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         List<Float> arrayList = new ArrayList<>();
@@ -118,6 +136,7 @@ public class EducationAllocationEngine extends FundAllocationEngine {
 
     }
 
+    // Check if the state falls under top ten Advanced degree rating in the US
     public void ifTopTenAdvancedDegree() {
         
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -148,6 +167,8 @@ public class EducationAllocationEngine extends FundAllocationEngine {
         }
 
     }
+    
+    // Check if the state's high school rating was high compared to the previous year
 
     public void compareYearRatingHighSchool() {
 
@@ -166,6 +187,7 @@ public class EducationAllocationEngine extends FundAllocationEngine {
         }
     }
 
+    // Check if the state's bachelors rating was high compared to the previous year
     public void compareYearRatingBachelors() {
 
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -182,6 +204,7 @@ public class EducationAllocationEngine extends FundAllocationEngine {
         }
     }
 
+    // Check if the state's Advanced Degress rating was high compared to the previous year
     public void compareYearRatingAdvancedDegree() {
 
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -198,6 +221,7 @@ public class EducationAllocationEngine extends FundAllocationEngine {
         }
     }
 
+    // Check if the state's previous year funding  was high compared to the previous year
     public void compareLastFunding() {
         boolean percentageFlag = false;
 
@@ -220,6 +244,7 @@ public class EducationAllocationEngine extends FundAllocationEngine {
         }
     }
 
+    // Check if the state's funding request greater than the fed budget amount for the department
     public void checkGreaterThanAvailable() {
         double amount = 0;
         try {
@@ -237,10 +262,12 @@ public class EducationAllocationEngine extends FundAllocationEngine {
             System.out.println(e.getMessage());
         }
     }
-
+    
+    // main function which executes all of the above methods/ rule for a specific request
     @Override
-    public void mainProcedure() {
+    public double mainProcedure() {
         ifGreaterThanNormalDecisionScore();
+        ifGreaterThanNormalPrevYearFundRating();
         compareYearRatingHighSchool();
         compareYearRatingBachelors();
         compareYearRatingAdvancedDegree();
@@ -250,6 +277,7 @@ public class EducationAllocationEngine extends FundAllocationEngine {
         ifTopTenAdvancedDegree();
         checkGreaterThanAvailable();
         updateSQL();
+        return getAllocatedAmount();
     }
 
     public static void main(String[] args) {
