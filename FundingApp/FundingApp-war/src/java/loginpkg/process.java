@@ -66,23 +66,72 @@ public class process extends HttpServlet {
             */
             
             if(request.getParameter("checked")!=null && request.getParameter("process")!=null)
-            {
+            {   
+                  //Pulls multiple request ids for processing, selected by choosing multiple checkboxes
+                String[] requestIds = request.getParameterValues("checked");
+                
+                for(String requestVar : requestIds) {
+                    
+                
                 //request_id,state_id,requested_amount,department_id
                 RequestHistory updReqObj = new RequestHistory();
-                RequestHistory remainingValObj = requestHistoryFacade2.find(Integer.parseInt(request.getParameter("checked")));
+                RequestHistory remainingValObj = requestHistoryFacade2.find(Integer.parseInt(requestVar));
                 Status statusObj = new Status();
 
                 
-                EducationAllocationEngine eAE = new EducationAllocationEngine(Integer.parseInt(request.getParameter("checked")),
+                //EducationAllocationEngine eAE = new EducationAllocationEngine(Integer.parseInt(request.getParameter("checked")),
+                  //      remainingValObj.getStateId().getStateCode(),remainingValObj.getRequestedFund());
+                double allocated_amt=0.0;
+                // calling an object of a department
+                
+                switch(remainingValObj.getDepartmentId()) {
+                    case 1:
+                        CrimeAllocationEngine cAE = new CrimeAllocationEngine(Integer.parseInt(requestVar),
                         remainingValObj.getStateId().getStateCode(),remainingValObj.getRequestedFund());
-                double allocated_amt = eAE.mainProcedure();
+                        allocated_amt = cAE.mainProcedure();
+                        break;
+                    case 2:
+                        EducationAllocationEngine edAE = new EducationAllocationEngine(Integer.parseInt(requestVar),
+                        remainingValObj.getStateId().getStateCode(),remainingValObj.getRequestedFund());
+                        allocated_amt = edAE.mainProcedure();
+                        break;
+                    case 3:
+                        EconomyAllocationEngine ecAE = new EconomyAllocationEngine(Integer.parseInt(requestVar),
+                        remainingValObj.getStateId().getStateCode(),remainingValObj.getRequestedFund());
+                        allocated_amt = ecAE.mainProcedure();
+                        break;
+                    case 4:
+                        HealthAllocationEngine hAE = new HealthAllocationEngine(Integer.parseInt(requestVar),
+                        remainingValObj.getStateId().getStateCode(),remainingValObj.getRequestedFund());
+                        allocated_amt = hAE.mainProcedure();
+                        break;
+                    case 5:
+                        TransportationAllocationEngine tAE = new TransportationAllocationEngine(Integer.parseInt(requestVar),
+                        remainingValObj.getStateId().getStateCode(),remainingValObj.getRequestedFund());
+                        allocated_amt = tAE.mainProcedure();
+                        break; 
+                    case 6:
+                        EmploymentAllocationEngine ueAE = new EmploymentAllocationEngine(Integer.parseInt(requestVar),
+                        remainingValObj.getStateId().getStateCode(),remainingValObj.getRequestedFund());
+                        allocated_amt = ueAE.mainProcedure();
+                        break; 
+                    case 7:
+                        EnergyAllocationEngine enAE = new EnergyAllocationEngine(Integer.parseInt(requestVar),
+                        remainingValObj.getStateId().getStateCode(),remainingValObj.getRequestedFund());
+                        allocated_amt = enAE.mainProcedure();
+                        break; 
+                    default :
+                        break;
+                }
+                        
+                
                 System.out.println("Processed successfully");
                 
-                RequestHistory remainingValObj1 = requestHistoryFacade2.find(Integer.parseInt(request.getParameter("checked")));
+                RequestHistory remainingValObj1 = requestHistoryFacade2.find(Integer.parseInt(requestVar));
                 statusObj.setStatusId(2);
                 statusObj.setStatusValue("processed");
                 
-                updReqObj.setRequestId(Integer.parseInt(request.getParameter("checked")));
+                updReqObj.setRequestId(Integer.parseInt(requestVar));
                 updReqObj.setAllocatedFund(allocated_amt);//remainingValObj1.getAllocatedFund());
                 updReqObj.setDepartmentId(remainingValObj1.getDepartmentId());
                 updReqObj.setRequestedFund(remainingValObj1.getRequestedFund());
@@ -90,12 +139,20 @@ public class process extends HttpServlet {
                 updReqObj.setStatusId(statusObj);
                 requestHistoryFacade2.edit(updReqObj); //Updating the request status
                 
+                }
             }
             //approving the request
             else if(request.getParameter("checkedP")!=null && request.getParameter("approve")!=null)
             {
+                //Pulls multiple request ids for approving them, selected by choosing multiple checkboxes
+                String[] requestIds = request.getParameterValues("checkedP");
+                
+                for(String requestVar : requestIds)
+                {
+                    
+                
                 RequestHistory updReqObj = new RequestHistory();
-                RequestHistory remainingValObj = requestHistoryFacade2.find(Integer.parseInt(request.getParameter("checkedP")));
+                RequestHistory remainingValObj = requestHistoryFacade2.find(Integer.parseInt(requestVar));
                 
                 //Fetch the fund
                 Fedfund fedfundObj = new Fedfund();
@@ -124,7 +181,7 @@ public class process extends HttpServlet {
                 statusObj.setStatusValue("approved");
                 
                 //Set Values
-                updReqObj.setRequestId(Integer.parseInt(request.getParameter("checkedP")));
+                updReqObj.setRequestId(Integer.parseInt(requestVar));
                 updReqObj.setAllocatedFund(remainingValObj.getAllocatedFund());
                 updReqObj.setDepartmentId(remainingValObj.getDepartmentId());
                 updReqObj.setRequestedFund(remainingValObj.getRequestedFund());
@@ -132,25 +189,32 @@ public class process extends HttpServlet {
                 //System.out.println("I m here");
                 updReqObj.setStatusId(statusObj);
                 requestHistoryFacade2.edit(updReqObj); //Updating the request status
-            }
+                }
+            }      
             //reject the request
             else if(request.getParameter("checkedP")!=null && request.getParameter("reject")!=null)
             {
+                //Pulls multiple request ids for rejecting them, selected by choosing multiple checkboxes
+                String[] requestIds = request.getParameterValues("checkedP");
+                
+                for(String requestVar : requestIds) {
+                    
+                
                 RequestHistory updReqObj = new RequestHistory();
-                RequestHistory remainingValObj = requestHistoryFacade2.find(Integer.parseInt(request.getParameter("checkedP")));
+                RequestHistory remainingValObj = requestHistoryFacade2.find(Integer.parseInt(requestVar));
                 Status statusObj = new Status();
                 statusObj.setStatusId(3);
                 statusObj.setStatusValue("discarded");
                 
-                updReqObj.setRequestId(Integer.parseInt(request.getParameter("checkedP")));
+                updReqObj.setRequestId(Integer.parseInt(requestVar));
                 updReqObj.setAllocatedFund(remainingValObj.getAllocatedFund());
                 updReqObj.setDepartmentId(remainingValObj.getDepartmentId());
                 updReqObj.setRequestedFund(remainingValObj.getRequestedFund());
                 updReqObj.setStateId(remainingValObj.getStateId());
                 updReqObj.setStatusId(statusObj);
                 requestHistoryFacade2.edit(updReqObj); //Updating the request status
-            }
-            
+                }
+            } 
             
             response.sendRedirect(request.getContextPath()+"/loginallocator?username=fund&direct=1");
             

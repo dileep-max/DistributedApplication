@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.text.DecimalFormat;
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -87,6 +87,8 @@ public class FundAllocationEngine {
 
     // to set the allocated amount of each request
     public void setAllocatedAmount(double allocatedAmount) {
+        DecimalFormat df = new DecimalFormat("#.##");
+        allocatedAmount = Double.valueOf(df.format(allocatedAmount));
         this.allocatedAmount = allocatedAmount;
     }
     
